@@ -18,25 +18,25 @@ import { KoaContext } from '../../types/koa';
 
 const { isValid } = Types.ObjectId;
 
-/** 加密salt位数 */
+/** Encrypted salt digits */
 const saltRounds = 10;
 
-/** 一天时间 */
+/** Day time */
 const OneDay = 1000 * 60 * 60 * 24;
 
 interface Environment {
-    /** 客户端系统 */
+    /** Client system */
     os: string;
-    /** 客户端浏览器 */
+    /** Client browser */
     browser: string;
-    /** 客户端环境信息 */
+    /** Client environment information */
     environment: string;
 }
 
 /**
- * 生成jwt token
- * @param user 用户
- * @param environment 客户端环境信息
+ * Generate jwt token
+ * @param user user
+ * @param environment Client environment information
  */
 function generateToken(user: string, environment: string) {
     return jwt.encode(
@@ -50,11 +50,11 @@ function generateToken(user: string, environment: string) {
 }
 
 /**
- * 处理注册时间不满24小时的用户
- * @param user 用户
+ * Handle users who have been registered for less than 24 hours
+ * @param user
  */
 function handleNewUser(user: UserDocument) {
-    // 将用户添加到新用户列表, 24小时后删除
+    // Add user to new user list, delete after 24 hours
     if (Date.now() - user.createTime.getTime() < OneDay) {
         const userId = user._id.toString();
         addMemoryData(MemoryDataStorageKey.NewUserList, userId);
@@ -65,28 +65,26 @@ function handleNewUser(user: UserDocument) {
 }
 
 interface RegisterData extends Environment {
-    /** 用户名 */
+    /** username */
     username: string;
-    /** 用户密码 */
+    /** user password */
     password: string;
 }
 
 /**
- * 注册新用户
+ * Register new user
  * @param ctx Context
  */
 export async function register(ctx: KoaContext<RegisterData>) {
-    const {
-        username, password, os, browser, environment,
-    } = ctx.data;
-    assert(username, '用户名不能为空');
-    assert(password, '密码不能为空');
+    const { username, password, os, browser, environment } = ctx.data;
+    assert(username, 'Username can not be empty');
+    assert(password, 'password can not be blank');
 
     const user = await User.findOne({ username });
-    assert(!user, '该用户名已存在');
+    assert(!user, 'The username already exists');
 
     const defaultGroup = await Group.findOne({ isDefault: true });
-    assert(defaultGroup, '默认群组不存在');
+    assert(defaultGroup, 'Default group does not exist');
 
     const salt = await promisify(bcrypt.genSalt)(saltRounds);
     const hash = await promisify(bcrypt.hash)(password, salt);
@@ -101,7 +99,7 @@ export async function register(ctx: KoaContext<RegisterData>) {
         });
     } catch (err) {
         if (err.name === 'ValidationError') {
-            return '用户名包含不支持的字符或者长度超过限制';
+            return 'Username contains unsupported characters or is longer than the limit';
         }
         throw err;
     }
@@ -150,23 +148,21 @@ export async function register(ctx: KoaContext<RegisterData>) {
 type LoginData = RegisterData;
 
 /**
- * 账密登录
+ * Account Login
  * @param ctx Context
  */
 export async function login(ctx: KoaContext<LoginData>) {
-    assert(!ctx.socket.user, '你已经登录了');
+    assert(!ctx.socket.user, 'You are already logged in');
 
-    const {
-        username, password, os, browser, environment,
-    } = ctx.data;
-    assert(username, '用户名不能为空');
-    assert(password, '密码不能为空');
+    const { username, password, os, browser, environment } = ctx.data;
+    assert(username, 'Username can not be empty');
+    assert(password, 'password can not be blank');
 
     const user = await User.findOne({ username });
-    assert(user, '该用户不存在');
+    assert(user, 'this user does not exist');
 
     const isPasswordCorrect = bcrypt.compareSync(password, user.password);
-    assert(isPasswordCorrect, '密码错误');
+    assert(isPasswordCorrect, 'wrong password');
 
     handleNewUser(user);
 
@@ -218,31 +214,29 @@ export async function login(ctx: KoaContext<LoginData>) {
 }
 
 interface LoginByTokenData extends Environment {
-    /** 登录token */
+    /** Login token */
     token: string;
 }
 
 /**
- * token登录
+ * token login
  * @param ctx Context
  */
 export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
-    assert(!ctx.socket.user, '你已经登录了');
+    assert(!ctx.socket.user, 'You are already logged in');
 
-    const {
-        token, os, browser, environment,
-    } = ctx.data;
-    assert(token, 'token不能为空');
+    const { token, os, browser, environment } = ctx.data;
+    assert(token, 'token cannot be empty');
 
     let payload = null;
     try {
         payload = jwt.decode(token, config.jwtSecret);
     } catch (err) {
-        return '非法token';
+        return 'Illegal token';
     }
 
-    assert(Date.now() < payload.expires, 'token已过期');
-    assert.equal(environment, payload.environment, '非法登录');
+    assert(Date.now() < payload.expires, 'token has expired');
+    assert.equal(environment, payload.environment, 'Illegal login');
 
     const user = await User.findOne(
         { _id: payload.user },
@@ -254,7 +248,7 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
             createTime: 1,
         },
     );
-    assert(user, '用户不存在');
+    assert(user, 'User does not exist');
 
     handleNewUser(user);
 
@@ -303,7 +297,7 @@ export async function loginByToken(ctx: KoaContext<LoginByTokenData>) {
 }
 
 /**
- * 游客登录, 只能获取默认群组信息
+ * Visitor login, can only get the default group information
  * @param ctx Context
  */
 export async function guest(ctx: KoaContext<Environment>) {
@@ -346,17 +340,17 @@ export async function guest(ctx: KoaContext<Environment>) {
 }
 
 interface ChangeAvatarData {
-    /** 新头像 */
+    /** New avatar */
     avatar: string;
 }
 
 /**
- * 修改用户头像
+ * Modify user avatar
  * @param ctx Context
  */
 export async function changeAvatar(ctx: KoaContext<ChangeAvatarData>) {
     const { avatar } = ctx.data;
-    assert(avatar, '新头像链接不能为空');
+    assert(avatar, 'New avatar link cannot be empty');
 
     await User.updateOne(
         { _id: ctx.socket.user },
@@ -373,19 +367,19 @@ interface AddFriendData {
 }
 
 /**
- * 添加好友, 单向添加
+ * Add friend, add one way
  * @param ctx Context
  */
 export async function addFriend(ctx: KoaContext<AddFriendData>) {
     const { userId } = ctx.data;
-    assert(isValid(userId), '无效的用户ID');
-    assert(ctx.socket.user.toString() !== userId, '不能添加自己为好友');
+    assert(isValid(userId), 'Invalid user id');
+    assert(ctx.socket.user.toString() !== userId, "Can't add yourself as a friend");
 
     const user = await User.findOne({ _id: userId });
-    assert(user, '添加好友失败, 用户不存在');
+    assert(user, 'Add friend failed, user does not exist');
 
     const friend = await Friend.find({ from: ctx.socket.user, to: user._id });
-    assert(friend.length === 0, '你们已经是好友了');
+    assert(friend.length === 0, 'You are already friends');
 
     const newFriend = await Friend.create({
         from: ctx.socket.user,
@@ -406,39 +400,39 @@ interface AddFriendData {
 }
 
 /**
- * 删除好友, 单向删除
+ * Delete friend, one-way delete
  * @param ctx Context
  */
 export async function deleteFriend(ctx: KoaContext<AddFriendData>) {
     const { userId } = ctx.data;
-    assert(isValid(userId), '无效的用户ID');
+    assert(isValid(userId), 'Invalid user id');
 
     const user = await User.findOne({ _id: userId });
-    assert(user, '用户不存在');
+    assert(user, 'User does not exist');
 
     await Friend.deleteOne({ from: ctx.socket.user, to: user._id });
     return {};
 }
 
 interface ChangePasswordData {
-    /** 旧密码 */
+    /** old password */
     oldPassword: string;
-    /** 新密码 */
+    /** new password */
     newPassword: string;
 }
 
 /**
- * 修改用户密码
+ * Modify user password
  * @param ctx Context
  */
 export async function changePassword(ctx: KoaContext<ChangePasswordData>) {
     const { oldPassword, newPassword } = ctx.data;
-    assert(newPassword, '新密码不能为空');
-    assert(oldPassword !== newPassword, '新密码不能与旧密码相同');
+    assert(newPassword, 'New password cannot be empty');
+    assert(oldPassword !== newPassword, 'The new password cannot be the same as the old password');
 
     const user = await User.findOne({ _id: ctx.socket.user });
     const isPasswordCorrect = bcrypt.compareSync(oldPassword, user.password);
-    assert(isPasswordCorrect, '旧密码不正确');
+    assert(isPasswordCorrect, 'Old password is incorrect');
 
     const salt = await promisify(bcrypt.genSalt)(saltRounds);
     const hash = await promisify(bcrypt.hash)(newPassword, salt);
@@ -457,15 +451,15 @@ interface ChangeUsernameData {
 }
 
 /**
- * 修改用户名
+ * Modify username
  * @param ctx Context
  */
 export async function changeUsername(ctx: KoaContext<ChangeUsernameData>) {
     const { username } = ctx.data;
-    assert(username, '新用户名不能为空');
+    assert(username, 'New username cannot be empty');
 
     const user = await User.findOne({ username });
-    assert(!user, '该用户名已存在, 换一个试试吧');
+    assert(!user, 'The username already exists, try another one ');
 
     const self = await User.findOne({ _id: ctx.socket.user });
 
@@ -480,15 +474,15 @@ export async function changeUsername(ctx: KoaContext<ChangeUsernameData>) {
 type ResetUserPasswordData = ChangeUsernameData;
 
 /**
- * 重置用户密码, 需要管理员权限
+ * Reset user password, requires administrator rights
  * @param ctx Context
  */
 export async function resetUserPassword(ctx: KoaContext<ResetUserPasswordData>) {
     const { username } = ctx.data;
-    assert(username !== '', 'username不能为空');
+    assert(username !== '', 'username cannot be empty');
 
     const user = await User.findOne({ username });
-    assert(user, '用户不存在');
+    assert(user, 'User does not exist');
 
     const newPassword = 'helloworld';
     const salt = await promisify(bcrypt.genSalt)(saltRounds);
@@ -509,17 +503,20 @@ interface SetUserTagData {
 }
 
 /**
- * 更新用户标签, 需要管理员权限
+ * Update user tags, requires administrator rights
  * @param ctx Context
  */
 export async function setUserTag(ctx: KoaContext<SetUserTagData>) {
     const { username, tag } = ctx.data;
-    assert(username !== '', 'username不能为空');
-    assert(tag !== '', 'tag不能为空');
-    assert(/^([0-9a-zA-Z]{1,2}|[\u4e00-\u9eff]){1,5}$/.test(tag), '标签不符合要求, 允许5个汉字或者10个字母');
+    assert(username !== '', 'username cannot be empty');
+    assert(tag !== '', 'tag cannot be empty');
+    assert(
+        /^([0-9a-zA-Z]{1,2}|[\u4e00-\u9eff]){1,5}$/.test(tag),
+        'The label does not meet the requirements, allowing 5 Chinese characters or 10 letters',
+    );
 
     const user = await User.findOne({ username });
-    assert(user, '用户不存在');
+    assert(user, 'User does not exist');
 
     user.tag = tag;
     await user.save();

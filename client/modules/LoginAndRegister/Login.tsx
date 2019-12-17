@@ -12,7 +12,7 @@ import { Message } from '../../state/reducer';
 import convertMessage from '../../../utils/convertMessage';
 import { ActionTypes } from '../../state/action';
 
-/** 登录框 */
+/** Login box */
 function Login() {
     const action = useAction();
     const dispatch = useDispatch();
@@ -37,8 +37,8 @@ function Login() {
                 ...user.friends.map((friend) => getFriendId(friend.from, friend.to._id)),
             ];
             const linkmanMessages = await getLinkmansLastMessages(linkmanIds);
-            Object.values(linkmanMessages).forEach(
-                (messages: Message[]) => messages.forEach(convertMessage),
+            Object.values(linkmanMessages).forEach((messages: Message[]) =>
+                messages.forEach(convertMessage),
             );
             dispatch({
                 type: ActionTypes.SetLinkmansLastMessages,
@@ -49,14 +49,14 @@ function Login() {
 
     return (
         <div className={Style.loginRegister}>
-            <h3 className={Style.title}>用户名</h3>
+            <h3 className={Style.title}>Username</h3>
             <Input
                 className={Style.input}
                 value={username}
                 onChange={setUsername}
                 onEnter={handleLogin}
             />
-            <h3 className={Style.title}>密码</h3>
+            <h3 className={Style.title}>Password</h3>
             <Input
                 className={Style.input}
                 type="password"
@@ -65,7 +65,7 @@ function Login() {
                 onEnter={handleLogin}
             />
             <button className={Style.button} onClick={handleLogin} type="button">
-                登录
+                Login
             </button>
         </div>
     );

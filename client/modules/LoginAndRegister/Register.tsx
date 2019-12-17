@@ -11,7 +11,7 @@ import { Message } from '../../state/reducer';
 import convertMessage from '../../../utils/convertMessage';
 import { ActionTypes } from '../../state/action';
 
-/** 登录框 */
+/** Login box */
 function Register() {
     const action = useAction();
     const dispatch = useDispatch();
@@ -36,8 +36,8 @@ function Register() {
                 ...user.friends.map((friend) => getFriendId(friend.from, friend.to._id)),
             ];
             const linkmanMessages = await getLinkmansLastMessages(linkmanIds);
-            Object.values(linkmanMessages).forEach(
-                (messages: Message[]) => messages.forEach(convertMessage),
+            Object.values(linkmanMessages).forEach((messages: Message[]) =>
+                messages.forEach(convertMessage),
             );
             dispatch({
                 type: ActionTypes.SetLinkmansLastMessages,
@@ -48,14 +48,14 @@ function Register() {
 
     return (
         <div className={Style.loginRegister}>
-            <h3 className={Style.title}>用户名</h3>
+            <h3 className={Style.title}>Username</h3>
             <Input
                 className={Style.input}
                 value={username}
                 onChange={setUsername}
                 onEnter={handleRegister}
             />
-            <h3 className={Style.title}>密码</h3>
+            <h3 className={Style.title}>Password</h3>
             <Input
                 className={Style.input}
                 type="password"
@@ -64,7 +64,7 @@ function Register() {
                 onEnter={handleRegister}
             />
             <button className={Style.button} onClick={handleRegister} type="button">
-                注册
+                Register
             </button>
         </div>
     );

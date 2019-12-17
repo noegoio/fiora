@@ -11,50 +11,52 @@ import { KoaContext } from '../../types/koa';
 
 const { isValid } = Types.ObjectId;
 
-/** 初次获取历史消息数 */
+/** Number of historical messages obtained for the first time */
 const FirstTimeMessagesCount = 15;
-/** 每次调用接口获取的历史消息数 */
+/** The number of historical messages obtained by each call to the interface */
 const EachFetchMessagesCount = 30;
 
-/** 石头剪刀布, 用于随机生成结果 */
+/** Rock-paper-scissors, for randomly generating results */
 const RPS = ['石头', '剪刀', '布'];
 
 interface SendMessageData {
-    /** 消息目标 */
+    /** Message destination */
     to: string;
-    /** 消息类型 */
+    /** Message type */
     type: string;
-    /** 消息内容 */
+    /** Message content */
     content: string;
 }
 
 /**
- * 发送消息
- * 如果是发送给群组, to是群组id
- * 如果是发送给个人, to是俩人id按大小序拼接后的值
+ * Send a message
+ * If sent to a group, to is the group id
+ * If it is sent to an individual, to is the value of the two people's id after concatenation in
+ * order of size
+ *
  * @param ctx Context
  */
 export async function sendMessage(ctx: KoaContext<SendMessageData>) {
     const { to, content } = ctx.data;
     let { type } = ctx.data;
-    assert(to, 'to不能为空');
+    assert(to, 'to cannot be empty');
 
     let groupId = '';
     let userId = '';
     if (isValid(to)) {
         groupId = to;
         const group = await Group.findOne({ _id: to });
-        assert(group, '群组不存在');
+        assert(group, 'Group does not exist');
     } else {
         userId = to.replace(ctx.socket.user.toString(), '');
-        assert(isValid(userId), '无效的用户ID');
+        assert(isValid(userId), 'Invalid user ID');
         const user = await User.findOne({ _id: userId });
-        assert(user, '用户不存在');
+        assert(user, 'User does not exist');
     }
 
     let messageContent = content;
     if (type === 'text') {
-        assert(messageContent.length <= 2048, '消息长度过长');
+        assert(messageContent.length <= 2048, 'Message length is too long');
 
         const rollRegex = /^-roll( ([0-9]*))?$/;
         if (rollRegex.test(messageContent)) {
@@ -82,7 +84,7 @@ export async function sendMessage(ctx: KoaContext<SendMessageData>) {
         messageContent = xss(messageContent);
     } else if (type === 'invite') {
         const group = await Group.findOne({ name: content });
-        assert(group, '目标群组不存在');
+        assert(group, 'Target group does not exist');
 
         const user = await User.findOne({ _id: ctx.socket.user });
         messageContent = JSON.stringify({
@@ -128,29 +130,32 @@ export async function sendMessage(ctx: KoaContext<SendMessageData>) {
 }
 
 interface GetLinkmanLastMessagesData {
-    /** 联系人id列表 */
+    /** Contact id list */
     linkmans: string[];
 }
 
 /**
- * 获取一组联系人的最后历史消息
+ * Get last history message for a group of contacts
  * @param ctx Context
  */
 export async function getLinkmansLastMessages(ctx: KoaContext<GetLinkmanLastMessagesData>) {
     const { linkmans } = ctx.data;
     assert(Array.isArray(linkmans), '参数linkmans应该是Array');
 
-    const promises = linkmans.map((linkmanId) =>
-        Message.find(
-            { to: linkmanId },
-            {
-                type: 1,
-                content: 1,
-                from: 1,
-                createTime: 1,
-            },
-            { sort: { createTime: -1 }, limit: FirstTimeMessagesCount },
-        ).populate('from', { username: 1, avatar: 1, tag: 1 }));
+    const promises = linkmans.map(
+        (linkmanId) =>
+            Message.find(
+                { to: linkmanId },
+                {
+                    type: 1,
+                    content: 1,
+                    from: 1,
+                    createTime: 1,
+                },
+                { sort: { createTime: -1 }, limit: FirstTimeMessagesCount },
+            ).populate('from', { username: 1, avatar: 1, tag: 1 }),
+        null,
+    );
     const results = await Promise.all(promises);
     const messages = linkmans.reduce((result, linkmanId, index) => {
         result[linkmanId] = ((results[index] || []) as Array<unknown>).reverse();
@@ -161,14 +166,14 @@ export async function getLinkmansLastMessages(ctx: KoaContext<GetLinkmanLastMess
 }
 
 interface GetLinkmanHistoryMessagesData {
-    /** 联系人id */
+    /** Contact id */
     linkmanId: string;
-    /** 客户端目前已有的历史消息数量 */
+    /** The number of historical messages that the client currently has */
     existCount: number;
 }
 
 /**
- * 获取联系人的历史消息
+ * Get contact history
  * @param ctx Context
  */
 export async function getLinkmanHistoryMessages(ctx: KoaContext<GetLinkmanHistoryMessagesData>) {
@@ -189,12 +194,12 @@ export async function getLinkmanHistoryMessages(ctx: KoaContext<GetLinkmanHistor
 }
 
 interface GetDefaultGroupHistoryMessagesData {
-    /** 客户端目前已有的历史消息数量 */
+    /** The number of historical messages that the client currently has */
     existCount: number;
 }
 
 /**
- * 获取默认群组的历史消息
+ * Get history messages for the default group
  * @param ctx Context
  */
 export async function getDefalutGroupHistoryMessages(
@@ -218,12 +223,12 @@ export async function getDefalutGroupHistoryMessages(
 }
 
 interface DeleteMessageData {
-    /** 消息id */
+    /** Message id */
     messageId: string;
 }
 
 /**
- * 删除消息, 需要管理员权限
+ * Delete message, requires administrator rights
  */
 export async function deleteMessage(ctx: KoaContext<DeleteMessageData>) {
     const { messageId } = ctx.data;
@@ -234,7 +239,8 @@ export async function deleteMessage(ctx: KoaContext<DeleteMessageData>) {
     await message.remove();
 
     /**
-     * 广播删除消息通知, 区分群消息和私聊消息
+     * Broadcast delete message notification, distinguish between group messages and
+     * private chat messages
      */
     const messageName = 'deleteMessage';
     const messageData = {
@@ -242,10 +248,10 @@ export async function deleteMessage(ctx: KoaContext<DeleteMessageData>) {
         messageId,
     };
     if (isValid(message.to)) {
-        // 群消息
+        // Group message
         ctx.socket.to(message.to).emit(messageName, messageData);
     } else {
-        // 私聊消息
+        // Private chat message
         const targetUserId = message.to.replace(ctx.socket.user.toString(), '');
         const sockets = await Socket.find({ user: targetUserId });
         sockets.forEach((socket) => {

@@ -57,7 +57,7 @@ function Setting(props: SettingProps) {
             window.localStorage.removeItem(LocalStorageKey.PrimaryTextColor);
             window.localStorage.removeItem(LocalStorageKey.BackgroundImage);
             window.localStorage.removeItem(LocalStorageKey.Aero);
-            Message.success('已修改主题');
+            Message.success('Modified theme');
         } else {
             window.localStorage.setItem(LocalStorageKey.PrimaryColor, primaryColor);
             window.localStorage.setItem(LocalStorageKey.PrimaryTextColor, primaryTextColor);
@@ -80,7 +80,9 @@ function Setting(props: SettingProps) {
             }
             if (image.length > config.maxBackgroundImageSize) {
                 // eslint-disable-next-line consistent-return
-                return Message.error('设置背景图失败, 请选择小于3MB的图片');
+                return Message.error(
+                    'Failed to set the background image, please select an image smaller than 3MB',
+                );
             }
             const imageUrl = await uploadFile(
                 image.result as Blob,
@@ -106,11 +108,7 @@ function Setting(props: SettingProps) {
     }
 
     return (
-        <Dialog
-            className={`dialog ${Style.setting}`}
-            visible={visible}
-            onClose={onClose}
-        >
+        <Dialog className={`dialog ${Style.setting}`} visible={visible} onClose={onClose}>
             <Tabs
                 defaultActiveKey="default"
                 renderTabBar={() => <ScrollableInkTabBar />}
@@ -119,41 +117,44 @@ function Setting(props: SettingProps) {
                 <TabPane tab="功能" key="function">
                     <div className={Common.container}>
                         <div className={Common.block}>
-                            <p className={Common.title}>开关</p>
+                            <p className={Common.title}>Switch</p>
                             <div className={Style.switchContainer}>
                                 <div className={Style.switch}>
-                                    <p className={Style.switchText}>声音提醒</p>
+                                    <p className={Style.switchText}>Sound reminder</p>
                                     <Switch
                                         onChange={(value) => action.setStatus('soundSwitch', value)}
                                         checked={soundSwitch}
                                     />
                                 </div>
                                 <div className={Style.switch}>
-                                    <p className={Style.switchText}>桌面提醒</p>
+                                    <p className={Style.switchText}>Desktop reminder</p>
                                     <Switch
                                         onChange={(value) =>
-                                            action.setStatus('notificationSwitch', value)}
+                                            action.setStatus('notificationSwitch', value)
+                                        }
                                         checked={notificationSwitch}
                                     />
                                 </div>
                                 <div className={Style.switch}>
-                                    <p className={Style.switchText}>语音播报</p>
+                                    <p className={Style.switchText}>Voice broadcast</p>
                                     <Switch
                                         onChange={(value) => action.setStatus('voiceSwitch', value)}
                                         checked={voiceSwitch}
                                     />
                                 </div>
                                 <div className={Style.switch}>
-                                    <p className={Style.switchText}>播报自己消息</p>
+                                    <p className={Style.switchText}>Broadcast your message</p>
                                     <Switch
-                                        onChange={(value) => action.setStatus('selfVoiceSwitch', value)}
+                                        onChange={(value) =>
+                                            action.setStatus('selfVoiceSwitch', value)
+                                        }
                                         checked={selfVoiceSwitch}
                                     />
                                 </div>
                             </div>
                         </div>
                         <div className={Common.block}>
-                            <p className={Common.title}>提示音</p>
+                            <p className={Common.title}>Beep</p>
                             <div>
                                 <RadioGroup
                                     className={Style.radioGroup}
@@ -161,27 +162,29 @@ function Setting(props: SettingProps) {
                                     onChange={handleSelectSound}
                                     horizontal
                                 >
-                                    <RadioButton value="default">默认</RadioButton>
-                                    <RadioButton value="apple">苹果</RadioButton>
-                                    <RadioButton value="pcqq">电脑QQ</RadioButton>
-                                    <RadioButton value="mobileqq">手机QQ</RadioButton>
-                                    <RadioButton value="momo">陌陌</RadioButton>
-                                    <RadioButton value="huaji">滑稽</RadioButton>
+                                    <RadioButton value="default">default</RadioButton>
+                                    <RadioButton value="apple">apple</RadioButton>
+                                    <RadioButton value="pcqq">PCQQ</RadioButton>
+                                    <RadioButton value="mobileqq">MobileQQ</RadioButton>
+                                    <RadioButton value="momo">Momo</RadioButton>
+                                    <RadioButton value="huaji">Funny</RadioButton>
                                 </RadioGroup>
                             </div>
                         </div>
                         <div className={Common.block}>
-                            <p className={Common.title}>标签颜色</p>
+                            <p className={Common.title}>Label color</p>
                             <div>
                                 <RadioGroup
                                     className={Style.TagModeRadioGroup}
                                     value={tagColorMode}
-                                    onChange={(newValue: string) => action.setStatus('tagColorMode', newValue)}
+                                    onChange={(newValue: string) =>
+                                        action.setStatus('tagColorMode', newValue)
+                                    }
                                     horizontal
                                 >
-                                    <RadioButton value="singleColor">单一颜色</RadioButton>
-                                    <RadioButton value="fixedColor">固定颜色</RadioButton>
-                                    <RadioButton value="randomColor">随机颜色</RadioButton>
+                                    <RadioButton value="singleColor">Single color</RadioButton>
+                                    <RadioButton value="fixedColor">Fixed color</RadioButton>
+                                    <RadioButton value="randomColor">Random color</RadioButton>
                                 </RadioGroup>
                             </div>
                         </div>
@@ -197,18 +200,16 @@ function Setting(props: SettingProps) {
                                     onChange={(newValue: string) => setTheme(newValue)}
                                     horizontal
                                 >
-                                    <RadioButton value="default">默认</RadioButton>
-                                    <RadioButton value="cool">清爽</RadioButton>
-                                    <RadioButton value="custom">自定义</RadioButton>
+                                    <RadioButton value="default">Default</RadioButton>
+                                    <RadioButton value="cool">Color</RadioButton>
+                                    <RadioButton value="custom">Custom</RadioButton>
                                 </RadioGroup>
                             </div>
                         </div>
-                        {
-                            theme === 'custom'
-                            && (
+                        {theme === 'custom' && (
                             <>
                                 <div className={Common.block}>
-                                    <p className={Common.title}>毛玻璃效果</p>
+                                    <p className={Common.title}>Frosted glass effect</p>
                                     <div>
                                         <Switch
                                             onChange={(value) => action.setStatus('aero', value)}
@@ -218,9 +219,11 @@ function Setting(props: SettingProps) {
                                 </div>
                                 <div className={Common.block}>
                                     <p className={Common.title}>
-                                        背景图{' '}
+                                        Background image{' '}
                                         <span className={Style.backgroundTip}>
-                                        背景图会被拉伸到浏览器窗口大小, 合理的比例会取得更好的效果
+                                            The background image will be stretched to the size of
+                                            the browser window, A reasonable ratio will achieve
+                                            better results
                                         </span>
                                     </p>
                                     <div className={Style.backgroundImageContainer}>
@@ -229,7 +232,7 @@ function Setting(props: SettingProps) {
                                                 backgroundLoading ? 'blur' : ''
                                             }`}
                                             src={backgroundImage}
-                                            alt="背景图预览"
+                                            alt="Background preview"
                                             onClick={selectBackgroundImage}
                                         />
                                         <ReactLoading
@@ -245,9 +248,11 @@ function Setting(props: SettingProps) {
                                 </div>
                                 {TwitterPicker && (
                                     <div className={Common.block}>
-                                        <p className={Common.title}>主题颜色</p>
+                                        <p className={Common.title}>Theme color</p>
                                         <div className={Style.colorInfo}>
-                                            <div style={{ backgroundColor: `rgb(${primaryColor})` }} />
+                                            <div
+                                                style={{ backgroundColor: `rgb(${primaryColor})` }}
+                                            />
                                             <span>{`rgb(${primaryColor})`}</span>
                                         </div>
                                         <TwitterPicker
@@ -259,9 +264,13 @@ function Setting(props: SettingProps) {
                                 )}
                                 {TwitterPicker && (
                                     <div className={Common.block}>
-                                        <p className={Common.title}>文字颜色</p>
+                                        <p className={Common.title}>Text color</p>
                                         <div className={Style.colorInfo}>
-                                            <div style={{ backgroundColor: `rgb(${primaryTextColor})` }} />
+                                            <div
+                                                style={{
+                                                    backgroundColor: `rgb(${primaryTextColor})`,
+                                                }}
+                                            />
                                             <span>{`rgb(${primaryTextColor})`}</span>
                                         </div>
                                         <TwitterPicker
@@ -272,9 +281,7 @@ function Setting(props: SettingProps) {
                                     </div>
                                 )}
                             </>
-                            )
-                        }
-
+                        )}
                     </div>
                 </TabPane>
             </Tabs>

@@ -45,7 +45,7 @@ function ChatInput() {
     const $input = useRef(null);
     const aero = useAero();
 
-    /** 全局输入框聚焦快捷键 */
+    /** Global input box focus shortcut */
     function focusInput(e: KeyboardEvent) {
         const $target: HTMLElement = e.target as HTMLElement;
         if ($target.tagName === 'INPUT' || $target.tagName === 'TEXTAREA' || e.key !== 'i') {
@@ -63,13 +63,17 @@ function ChatInput() {
         (async () => {
             if (expressionDialog && !Expression) {
                 // @ts-ignore
-                const ExpressionModule = await import(/* webpackChunkName: "expression" */ './Expression');
+                const ExpressionModule = await import(
+                    /* webpackChunkName: "expression" */ './Expression'
+                );
                 Expression = ExpressionModule.default;
                 setTimestamp(Date.now());
             }
             if (codeEditorDialog && !CodeEditor) {
                 // @ts-ignore
-                const CodeEditorModule = await import(/* webpackChunkName: "code-editor" */ './CodeEditor');
+                const CodeEditorModule = await import(
+                    /* webpackChunkName: "code-editor" */ './CodeEditor'
+                );
                 CodeEditor = CodeEditorModule.default;
                 setTimestamp(Date.now());
             }
@@ -80,23 +84,23 @@ function ChatInput() {
         return (
             <div className={Style.chatInput}>
                 <p className={Style.guest}>
-                    游客朋友你好, 请
+                    Hello friends, please
                     <b
                         className={Style.guestLogin}
                         onClick={() => action.setStatus('loginRegisterDialogVisible', true)}
                         role="button"
                     >
-                        登录
+                        login
                     </b>
-                    后参与聊天
+                    After participating in chat
                 </p>
             </div>
         );
     }
 
     /**
-     * 插入文本到输入框光标处
-     * @param value 要插入的文本
+     * Insert text at the cursor of the input box
+     * @param value Text to insert
      */
     function insertAtCursor(value: string) {
         const input = $input.current;
@@ -104,9 +108,10 @@ function ChatInput() {
             const startPos = input.selectionStart;
             const endPos = input.selectionEnd;
             const restoreTop = input.scrollTop;
-            input.value = input.value.substring(0, startPos)
-                + value
-                + input.value.substring(endPos, input.value.length);
+            input.value =
+                input.value.substring(0, startPos) +
+                value +
+                input.value.substring(endPos, input.value.length);
             if (restoreTop > 0) {
                 input.scrollTop = restoreTop;
             }
@@ -181,7 +186,7 @@ function ChatInput() {
         }
 
         if (image.length > config.maxImageSize) {
-            Message.warning('要发送的图片过大', 3);
+            Message.warning('The picture to be sent is too large', 3);
             return;
         }
 
@@ -211,7 +216,7 @@ function ChatInput() {
                 );
             } catch (err) {
                 console.error(err);
-                Message.error('上传图片失败');
+                Message.error('Image upload failed');
             }
         };
         img.src = url;
@@ -219,7 +224,7 @@ function ChatInput() {
 
     async function handleSelectFile() {
         if (!connect) {
-            return Message.error('发送消息失败, 您当前处于离线状态');
+            return Message.error('Sending message failed, you are currently offline');
         }
         const image = await readDiskFile('blob', 'image/png,image/jpeg,image/gif');
         if (!image) {
@@ -261,11 +266,11 @@ function ChatInput() {
         // eslint-disable-next-line react/destructuring-assignment
         if (!connect) {
             e.preventDefault();
-            return Message.error('发送消息失败, 您当前处于离线状态');
+            return Message.error('Sending message failed, you are currently offline');
         }
         const { items, types } = e.clipboardData || e.originalEvent.clipboardData;
 
-        // 如果包含文件内容
+        // If the file content is included
         if (types.indexOf('Files') > -1) {
             for (let index = 0; index < items.length; index++) {
                 const item = items[index];
@@ -298,7 +303,7 @@ function ChatInput() {
 
     function sendTextMessage() {
         if (!connect) {
-            return Message.error('发送消息失败, 您当前处于离线状态');
+            return Message.error('Sending message failed, you are currently offline');
         }
 
         const message = $input.current.value.trim();
@@ -337,7 +342,7 @@ function ChatInput() {
             toggleExpressionDialog(true);
             e.preventDefault();
         } else if (e.key === '@') {
-            // 如果按下@建, 则进入@计算模式
+            // If you press @ 建, enter @calculation mode
             if (!/@/.test($input.current.value)) {
                 setAt({
                     enable: true,
@@ -348,26 +353,26 @@ function ChatInput() {
             }
             // eslint-disable-next-line react/destructuring-assignment
         } else if (at.enable) {
-            // 如果处于@计算模式
+            // If in @calculation mode
             const { key } = e;
-            // 延时, 以便拿到新的value和ime状态
+            // Delay to get new value and ime state
             setTimeout(() => {
-                // 如果@已经被删掉了, 退出@计算模式
+                // If @ has been deleted, exit @calculation mode
                 if (!/@/.test($input.current.value)) {
                     setAt({ enable: false, content: '' });
                     return;
                 }
-                // 如果是输入中文, 并且不是空格键, 忽略输入
+                // If you enter Chinese, and not the space bar, ignore the input
                 if (inputIME && key !== ' ') {
                     return;
                 }
-                // 如果是不是输入中文, 并且是空格键, 则@计算模式结束
+                // If it is not Chinese, and it is the space bar, the @calculation mode ends
                 if (!inputIME && key === ' ') {
                     setAt({ enable: false, content: '' });
                     return;
                 }
 
-                // 如果是正在输入中文, 则直接返回, 避免取到拼音字母
+                // If you are typing Chinese, return directly to avoid getting Pinyin letters
                 if (inputIME) {
                     return;
                 }
@@ -406,11 +411,11 @@ function ChatInput() {
 
     function handleSendCode(language: string, rawCode: string) {
         if (!connect) {
-            return Message.error('发送消息失败, 您当前处于离线状态');
+            return Message.error('Sending message failed, you are currently offline');
         }
 
         if (rawCode === '') {
-            return Message.warning('请输入内容');
+            return Message.warning('Please enter content');
         }
 
         const code = `@language=${language}@${rawCode}`;
@@ -427,7 +432,7 @@ function ChatInput() {
                     trigger={['click']}
                     visible={expressionDialog}
                     onVisibleChange={toggleExpressionDialog}
-                    overlay={(
+                    overlay={
                         <div className={Style.expressionDropdown}>
                             {Expression && (
                                 <Expression
@@ -436,7 +441,7 @@ function ChatInput() {
                                 />
                             )}
                         </div>
-                    )}
+                    }
                     animation="slide-up"
                     placement="topLeft"
                 >
@@ -450,7 +455,7 @@ function ChatInput() {
                 </Dropdown>
                 <Dropdown
                     trigger={['click']}
-                    overlay={(
+                    overlay={
                         <div className={Style.featureDropdown}>
                             <Menu onClick={handleFeatureMenuClick}>
                                 <MenuItem key="huaji">发送滑稽</MenuItem>
@@ -458,7 +463,7 @@ function ChatInput() {
                                 <MenuItem key="code">发送代码</MenuItem>
                             </Menu>
                         </div>
-                    )}
+                    }
                     animation="slide-up"
                     placement="topLeft"
                 >
@@ -470,8 +475,11 @@ function ChatInput() {
                         iconSize={32}
                     />
                 </Dropdown>
-                <form className={Style.form} autoComplete="off" onSubmit={(e) => e.preventDefault()}>
-
+                <form
+                    className={Style.form}
+                    autoComplete="off"
+                    onSubmit={(e) => e.preventDefault()}
+                >
                     <input
                         className={Style.input}
                         type="text"
@@ -487,7 +495,17 @@ function ChatInput() {
                     />
 
                     {!isMobile && !inputFocus && (
-                        <Tooltip placement="top" mouseEnterDelay={0.5} overlay={<span>支持粘贴图片发图<br />全局按 i 键聚焦</span>}>
+                        <Tooltip
+                            placement="top"
+                            mouseEnterDelay={0.5}
+                            overlay={
+                                <span>
+                                    Support pasting pictures
+                                    <br />
+                                    Press i key globally to focus
+                                </span>
+                            }
+                        >
                             <i className={`iconfont icon-about ${Style.tooltip}`} />
                         </Tooltip>
                     )}
@@ -502,8 +520,8 @@ function ChatInput() {
                 />
 
                 <div className={Style.atPanel}>
-                    {at.enable
-                        && getSuggestion().map((member) => (
+                    {at.enable &&
+                        getSuggestion().map((member) => (
                             <div
                                 className={Style.atUserList}
                                 key={member.user._id}

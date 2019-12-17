@@ -44,7 +44,9 @@ function Sidebar() {
         (async () => {
             if (selfInfoDialogVisible && !SelfInfo) {
                 // @ts-ignore
-                const selfInfoModule = await import(/* webpackChunkName: "self-info" */ './SelfInfo');
+                const selfInfoModule = await import(
+                    /* webpackChunkName: "self-info" */ './SelfInfo'
+                );
                 SelfInfo = selfInfoModule.default;
                 setTimestamp(Date.now());
             }
@@ -64,7 +66,7 @@ function Sidebar() {
     function logout() {
         action.logout();
         window.localStorage.removeItem('token');
-        Message.success('您已经退出登录');
+        Message.success('You are logged out');
         socket.disconnect();
         socket.connect();
     }
@@ -98,10 +100,10 @@ function Sidebar() {
                     />
                 )}
                 <div className={Style.buttons}>
-                    {isLogin
-                        && isAdmin
-                        && renderTooltip(
-                            '管理员',
+                    {isLogin &&
+                        isAdmin &&
+                        renderTooltip(
+                            'Administrator',
                             <IconButton
                                 width={40}
                                 height={40}
@@ -121,7 +123,7 @@ function Sidebar() {
                         </a>
                     </Tooltip>
                     {renderTooltip(
-                        '下载APP',
+                        'Download APP',
                         <IconButton
                             width={40}
                             height={40}
@@ -131,7 +133,7 @@ function Sidebar() {
                         />,
                     )}
                     {renderTooltip(
-                        '打赏',
+                        'Reward',
                         <IconButton
                             width={40}
                             height={40}
@@ -141,7 +143,7 @@ function Sidebar() {
                         />,
                     )}
                     {renderTooltip(
-                        '关于',
+                        'On',
                         <IconButton
                             width={40}
                             height={40}
@@ -150,9 +152,9 @@ function Sidebar() {
                             onClick={() => toggleAboutDialogVisible(true)}
                         />,
                     )}
-                    {isLogin
-                        && renderTooltip(
-                            '设置',
+                    {isLogin &&
+                        renderTooltip(
+                            'Set up',
                             <IconButton
                                 width={40}
                                 height={40}
@@ -161,9 +163,9 @@ function Sidebar() {
                                 onClick={() => toggleSettingDialogVisible(true)}
                             />,
                         )}
-                    {isLogin
-                        && renderTooltip(
-                            '退出登录',
+                    {isLogin &&
+                        renderTooltip(
+                            'Sign out',
                             <IconButton
                                 width={40}
                                 height={40}
@@ -174,7 +176,7 @@ function Sidebar() {
                         )}
                 </div>
 
-                {/* 弹窗 */}
+                {/* Pop-ups */}
                 {isLogin && SelfInfo && (
                     <SelfInfo
                         visible={selfInfoDialogVisible}

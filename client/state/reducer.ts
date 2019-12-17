@@ -16,7 +16,7 @@ import {
 } from './action';
 import getFriendId from '../../utils/getFriendId';
 
-/** 聊天消息 */
+/** Chat message */
 export interface Message {
     _id: string;
     type: string;
@@ -48,7 +48,6 @@ export interface GroupMember {
     environment: string;
 }
 
-/** 群组 */
 export interface Group {
     _id: string;
     name: string;
@@ -58,7 +57,6 @@ export interface Group {
     onlineMembers: GroupMember[];
 }
 
-/** 好友 */
 export interface Friend {
     _id: string;
     name: string;
@@ -66,7 +64,6 @@ export interface Friend {
     createTime: string;
 }
 
-/** 联系人 */
 export interface Linkman extends Group, User {
     type: string;
     unread: number;
@@ -77,7 +74,6 @@ export interface LinkmansMap {
     [linkmanId: string]: Linkman;
 }
 
-/** 用户信息 */
 export interface User {
     _id: string;
     username: string;
@@ -86,7 +82,6 @@ export interface User {
 
 /** redux store state */
 export interface State {
-    /** 用户信息 */
     user?: {
         _id: string;
         username: string;
@@ -95,51 +90,51 @@ export interface State {
         isAdmin: boolean;
     };
     linkmans: LinkmansMap;
-    /** 聚焦的联系人 */
+    /** Focused contacts */
     focus: string;
-    /** 客户端连接状态 */
+    /** Client connection status */
     connect: boolean;
-    /** 客户端的一些状态值 */
+    /** Some status values of the client */
     status: {
-        /** 是否显示登陆注册框 */
+        /** Whether to display the login registration box */
         loginRegisterDialogVisible: boolean;
-        /** 主题 */
+        /** theme */
         theme: string;
-        /** 主题主色调 */
+        /** Theme main color */
         primaryColor: string;
-        /** 主题文字主色调 */
+        /** Theme text main color */
         primaryTextColor: string;
-        /** 背景图 */
+        /** Background image */
         backgroundImage: string;
-        /** 启用毛玻璃效果 */
+        /** Enable frosted glass effect */
         aero: boolean;
-        /** 新消息声音提示开关 */
+        /** New message sound prompt switch */
         soundSwitch: boolean;
-        /** 声音类型 */
+        /** Sound type */
         sound: string;
-        /** 新消息桌面提醒开关 */
+        /** New message desktop reminder switch */
         notificationSwitch: boolean;
-        /** 新消息语言朗读开关 */
+        /** New message language reading switch */
         voiceSwitch: boolean;
-        /** 是否朗读个人发送的消息开关 */
+        /** Whether to read messages sent by individuals */
         selfVoiceSwitch: boolean;
         /**
-         * 用户标签颜色模式
-         * singleColor: 固定颜色
-         * fixedColor: 同一词始终同一颜色
-         * randomColor: 同一词在每次渲染中保持同一颜色
+         * User label color mode
+         * singleColor: Fixed color
+         * fixedColor: The same word is always the same color
+         * randomColor: The same word stays the same color in each render
          */
         tagColorMode: string;
-        /** 是否展示侧边栏 */
+        /** Whether to show the sidebar */
         sidebarVisible: boolean;
-        /** 是否展示搜索+联系人列表栏 */
+        /** Whether to display the search + contact list bar */
         functionBarAndLinkmanListVisible: boolean;
     };
 }
 
 /**
- * 将联系人以_id为键转为对象结构
- * @param linkmans 联系人数组
+ * Turn contacts into object structure with _id as key
+ * @param linkmans Contact array
  */
 function getLinkmansMap(linkmans: Linkman[]) {
     return linkmans.reduce((map: LinkmansMap, linkman) => {
@@ -149,8 +144,8 @@ function getLinkmansMap(linkmans: Linkman[]) {
 }
 
 /**
- * 将消息以_id为键转为对象结构
- * @param messages 消息数组
+ * Turn message into object structure with _id as key
+ * @param messages Message array
  */
 function getMessagesMap(messages: Message[]) {
     return messages.reduce((map: MessagesMap, message) => {
@@ -160,9 +155,9 @@ function getMessagesMap(messages: Message[]) {
 }
 
 /**
- * 删除对象中的对个键值
- * @param obj 目标对象
- * @param keys 要删除的键列表
+ * Delete pairs of values in an object
+ * @param obj target
+ * @param keys List of keys to delete
  */
 function deleteObjectKeys<T>(obj: T, keys: string[]): T {
     let entries = Object.entries(obj);
@@ -176,19 +171,19 @@ function deleteObjectKeys<T>(obj: T, keys: string[]): T {
 }
 
 /**
- * 删除对象中的某个键值
- * 直接调用delete删除键值据说性能差(我没验证)
- * @param obj 目标对象
- * @param key 要删除的键
+ * Delete a key from an object
+ * Calling delete directly to delete key values is said to have poor performance(I did not verify)
+ * @param obj target
+ * @param key The key to delete
  */
 function deleteObjectKey<T>(obj: T, key: string): T {
     return deleteObjectKeys(obj, [key]);
 }
 
 /**
- * 初始化联系人部分公共字段
- * @param linkman 联系人
- * @param type 联系人类型
+ * Initialize contact part public fields
+ * @param linkman Contact person
+ * @param type Contact type
  */
 function initLinkmanFields(linkman: Linkman, type: string) {
     linkman.type = type;
@@ -197,8 +192,8 @@ function initLinkmanFields(linkman: Linkman, type: string) {
 }
 
 /**
- * 转换群组数据结构
- * @param group 群组
+ * Transformation group data structure
+ * @param group Group
  */
 function transformGroup(group: Linkman): Linkman {
     initLinkmanFields(group, 'group');
@@ -208,8 +203,8 @@ function transformGroup(group: Linkman): Linkman {
 }
 
 /**
- * 转换好友数据结构
- * @param friend 好友
+ * Transform friend data structure
+ * @param friend Buddy
  */
 function transformFriend(friend: Linkman): Linkman {
     // @ts-ignore
@@ -311,7 +306,7 @@ function reducer(state: State = initialState, action: Action): State {
                 linkman.messages = existMessages;
             });
 
-            // 如果没登录过, 则将聚焦联系人设置为第一个联系人
+            // If not logged in, set the focused contact as the first contact
             let { focus } = state;
             if (!state.user && linkmans.length > 0) {
                 focus = linkmans[0]._id;
@@ -369,8 +364,8 @@ function reducer(state: State = initialState, action: Action): State {
             }
 
             /**
-             * 为了优化性能
-             * 如果目标联系人的旧消息个数超过50条, 仅保留50条
+             * To optimize performance
+             * If the target contact has more than 50 old messages, only 50 are retained
              */
             const { messages } = state.linkmans[focus];
             const messageKeys = Object.keys(messages);

@@ -19,18 +19,18 @@ import config from '../../config/server';
 import { SealTimeout } from '../../utils/const';
 import { KoaContext } from '../../types/koa';
 
-/** 百度语言合成token */
+/** Baidu language synthesis token */
 let baiduToken = '';
-/** 最后一次获取token的时间 */
+/** Time when the token was last obtained */
 let lastBaiduTokenTime = Date.now();
 
 interface SearchData {
-    /** 关键字 */
+    /** Keywords */
     keywords: string;
 }
 
 /**
- * 搜索用户和群组
+ * Search users and groups
  * @param ctx Context
  */
 export async function search(ctx: KoaContext<SearchData>) {
@@ -60,12 +60,12 @@ export async function search(ctx: KoaContext<SearchData>) {
 }
 
 interface SearchExpressionData {
-    /** 关键字 */
+    /** Keywords */
     keywords: string;
 }
 
 /**
- * 搜索表情包, 爬其它站资源
+ * Search emoticons, climb other station resources
  * @param ctx Context
  */
 export async function searchExpression(ctx: KoaContext<SearchExpressionData>) {
@@ -80,10 +80,11 @@ export async function searchExpression(ctx: KoaContext<SearchExpressionData>) {
         url: `${host}/so/bq/api9.php?page=3&sear=1&keyboard=${encodeURIComponent(keywords)}`,
         headers: {
             referer: 'https://www.b7.cn/so/bq/api9.php',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36',
+            'user-agent':
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36',
         },
     });
-    assert(res.status === 200, '搜索表情包失败, 请重试');
+    assert(res.status === 200, 'Search for emoji package failed, please try again');
 
     const images = res.data.match(/<img\s+src="[^"']+">/g) || [];
     return images.map((img: string) => {
@@ -96,7 +97,7 @@ export async function searchExpression(ctx: KoaContext<SearchExpressionData>) {
 }
 
 /**
- * 获取百度语言合成token
+ * Get Baidu language synthesis token
  */
 export async function getBaiduToken() {
     if (baiduToken && Date.now() < lastBaiduTokenTime) {
@@ -106,7 +107,7 @@ export async function getBaiduToken() {
     const res = await axios.get(
         'https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials&client_id=pw152BzvaSZVwrUf3Z2OHXM6&client_secret=fa273cc704b080e85ad61719abbf7794',
     );
-    assert(res.status === 200, '请求百度token失败');
+    assert(res.status === 200, 'Request for Baidu token failed');
 
     baiduToken = res.data.access_token;
     lastBaiduTokenTime = Date.now() + (res.data.expires_in - 60 * 60 * 24) * 1000;
@@ -114,23 +115,22 @@ export async function getBaiduToken() {
 }
 
 interface SealUserData {
-    /** 用户名 */
     username: string;
 }
 
 /**
- * 封禁用户, 需要管理员权限
+ * User ban, requires administrator rights
  * @param ctx Context
  */
 export async function sealUser(ctx: KoaContext<SealUserData>) {
     const { username } = ctx.data;
-    assert(username !== '', 'username不能为空');
+    assert(username !== '', 'username cannot be empty');
 
     const user = await User.findOne({ username });
-    assert(user, '用户不存在');
+    assert(user, 'User does not exist');
 
     const userId = user._id.toString();
-    assert(!existMemoryData(MemoryDataStorageKey.SealList, userId), '用户已在封禁名单');
+    assert(!existMemoryData(MemoryDataStorageKey.SealList, userId), 'User is banned');
 
     addMemoryData(MemoryDataStorageKey.SealList, userId);
     setTimeout(() => {
@@ -143,7 +143,7 @@ export async function sealUser(ctx: KoaContext<SealUserData>) {
 }
 
 /**
- * 获取已封禁的用户列表, 需要管理员权限
+ * Get list of banned users, requires administrator rights
  */
 export async function getSealList() {
     const sealList = getMemoryData(MemoryDataStorageKey.SealList);
@@ -154,19 +154,19 @@ export async function getSealList() {
 }
 
 interface UploadFileData {
-    /** 文件名 */
+    /** file name */
     fileName: string;
-    /** 文件内容 */
+    /** document content */
     file: any;
 }
 
 export async function uploadFile(ctx) {
     assert(
-        config.qiniuAccessKey === ''
-            || config.qiniuBucket === ''
-            || config.qiniuBucket === ''
-            || config.qiniuUrlPrefix === '',
-        '已配置七牛, 请使用七牛文件上传',
+        config.qiniuAccessKey === '' ||
+            config.qiniuBucket === '' ||
+            config.qiniuBucket === '' ||
+            config.qiniuUrlPrefix === '',
+        'Qiniu has been configured, please use Qiniu file upload',
     );
 
     try {
@@ -179,6 +179,6 @@ export async function uploadFile(ctx) {
         };
     } catch (err) {
         console.error(err);
-        return `上传文件失败:${err.message}`;
+        return `File upload failed:${err.message}`;
     }
 }

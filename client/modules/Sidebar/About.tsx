@@ -15,13 +15,13 @@ function About(props: AboutProps) {
         <Dialog className={Style.about} visible={visible} title="关于" onClose={onClose}>
             <div>
                 <div className={Common.block}>
-                    <p className={Common.title}>作者主页</p>
+                    <p className={Common.title}>Author Home</p>
                     <a href="https://suisuijiang.com" target="_black" rel="noopener noreferrer">
                         https://suisuijiang.com
                     </a>
                 </div>
                 <div className={Common.block}>
-                    <p className={Common.title}>如何运行</p>
+                    <p className={Common.title}>How it works</p>
                     <a
                         href="https://github.com/yinxin630/fiora/blob/master/doc/INSTALL.ZH.md"
                         target="_black"
@@ -31,7 +31,7 @@ function About(props: AboutProps) {
                     </a>
                 </div>
                 <div className={Common.block}>
-                    <p className={Common.title}>架构 / 设计思路</p>
+                    <p className={Common.title}>Architecture / Design ideas</p>
                     <a
                         href="https://github.com/yinxin630/blog/issues/3"
                         target="_black"
@@ -41,7 +41,7 @@ function About(props: AboutProps) {
                     </a>
                 </div>
                 <div className={Common.block}>
-                    <p className={Common.title}>将fiora安装到主屏(PWA)</p>
+                    <p className={Common.title}>Install fiora to the home screen(PWA)</p>
                     <ul>
                         <li>地址栏输入: Chrome://flags</li>
                         <li>
@@ -54,21 +54,21 @@ function About(props: AboutProps) {
                     </ul>
                 </div>
                 <div className={Common.block}>
-                    <p className={Common.title}>输入框快捷键</p>
+                    <p className={Common.title}>Input box shortcuts</p>
                     <ul>
                         <li>Alt + S: 发送滑稽</li>
                         <li>Alt + D: 发送表情</li>
                     </ul>
                 </div>
                 <div className={Common.block}>
-                    <p className={Common.title}>命令消息</p>
+                    <p className={Common.title}>Command message</p>
                     <ul>
                         <li>-roll [number]: 掷点</li>
                         <li>-rps: 石头剪刀布</li>
                     </ul>
                 </div>
                 <div className={Common.block}>
-                    <p className={Common.title}>友情链接</p>
+                    <p className={Common.title}>Links</p>
                     <ul>
                         <li>
                             <a
@@ -80,11 +80,7 @@ function About(props: AboutProps) {
                             </a>
                         </li>
                         <li>
-                            <a
-                                href="http://diy.b7.cn"
-                                target="_black"
-                                rel="noopener noreferrer"
-                            >
+                            <a href="http://diy.b7.cn" target="_black" rel="noopener noreferrer">
                                 表情生成器
                             </a>
                         </li>

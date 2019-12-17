@@ -6,13 +6,14 @@ const options = {
     scope: config.qiniuBucket,
     expires: 60,
 };
-const configNotEmpty = config.qiniuAccessKey !== ''
-    && config.qiniuSecretKey !== ''
-    && config.qiniuBucket !== ''
-    && config.qiniuUrlPrefix !== '';
+const configNotEmpty =
+    config.qiniuAccessKey !== '' &&
+    config.qiniuSecretKey !== '' &&
+    config.qiniuBucket !== '' &&
+    config.qiniuUrlPrefix !== '';
 
 /**
- * 获取七牛上传token
+ * Get Qiniu upload token
  */
 // eslint-disable-next-line import/prefer-default-export
 export async function uploadToken() {

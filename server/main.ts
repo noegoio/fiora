@@ -18,7 +18,6 @@ mongoose.connect(config.database, { useNewUrlParser: true }, async (err) => {
         return process.exit(1);
     }
 
-    // 判断默认群是否存在, 不存在就创建一个
     const group = await Group.findOne({ isDefault: true });
     if (!group) {
         const defaultGroup = await Group.create({
@@ -36,7 +35,7 @@ mongoose.connect(config.database, { useNewUrlParser: true }, async (err) => {
     }
 
     app.listen(config.port, async () => {
-        await Socket.deleteMany({}); // 删除Socket表所有历史数据
+        await Socket.deleteMany({});
         console.log(` >>> server listen on http://localhost:${config.port}`);
     });
 

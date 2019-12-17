@@ -4,8 +4,8 @@ const avatarFallback = '/avatar/0.jpg';
 const failTimes = new Map();
 
 /**
- * 处理头像加载失败的情况, 展示默认头像
- * @param e 事件
+ * Handle avatar loading failure, show default avatar
+ * @param e event
  */
 function handleError(e: SyntheticEvent) {
     const times = failTimes.get(e.target) || 0;
@@ -17,13 +17,13 @@ function handleError(e: SyntheticEvent) {
 }
 
 interface AvatarProps {
-    /** 头像链接 */
+    /** Avatar link */
     src: string;
-    /** 展示大小 */
+    /** Display size */
     size?: number;
-    /** 额外类名 */
+    /** Extra class name */
     className?: string;
-    /** 点击事件 */
+    /** Click event */
     onClick?: () => void;
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;

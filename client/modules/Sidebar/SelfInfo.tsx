@@ -51,11 +51,11 @@ function SelfInfo(props: SelfInfoProps) {
             const isSuccess = await changeAvatar(avatarUrl);
             if (isSuccess) {
                 action.setAvatar(URL.createObjectURL(blob));
-                Message.success('修改头像成功');
+                Message.success('Modify avatar successfully');
             }
         } catch (err) {
             console.error(err);
-            Message.error('上传头像失败');
+            Message.error('Failed to upload avatar');
         } finally {
             toggleLoading(false);
             setCropper({ enable: false, src: '', ext: '' });
@@ -69,14 +69,16 @@ function SelfInfo(props: SelfInfoProps) {
         }
         if (file.length > config.maxAvatarSize) {
             // eslint-disable-next-line consistent-return
-            return Message.error('设置头像失败, 请选择小于1MB的图片');
+            return Message.error(
+                'Failed to set the avatar, please select a picture smaller than 1MB',
+            );
         }
 
-        // gif头像不需要裁剪
+        // Gif avatars do not need to be cropped
         if (file.ext === 'gif') {
             uploadAvatar(file.result as Blob, file.ext);
         } else {
-            // 显示头像裁剪
+            // Show avatar crop
             const reader = new FileReader();
             reader.readAsDataURL(file.result as Blob);
             reader.onloadend = () => {
@@ -110,26 +112,26 @@ function SelfInfo(props: SelfInfoProps) {
         const isSuccess = await changePassword(oldPassword, newPassword);
         if (isSuccess) {
             onClose();
-            reLogin('修改密码成功, 请使用新密码重新登录');
+            reLogin('Password changed successfully, please login again with new password');
         }
     }
 
     const [username, setUsername] = useState('');
 
     /**
-     * 修改用户名
+     * Modify username
      */
     async function handleChangeUsername() {
         const isSuccess = await changeUsername(username);
         if (isSuccess) {
             onClose();
-            reLogin('修改用户名成功, 请使用新用户名重新登录');
+            reLogin('User name changed successfully, please login again with new user name');
         }
     }
 
     function handleCloseDialog(event) {
         /**
-         * 点击关闭按钮, 或者在非图片裁剪时点击蒙层, 才能关闭弹窗
+         * Click the close button, or click the mask when the image is not cropped, to close the pop-up window
          */
         if (event.target.className === 'rc-dialog-close-x' || !cropper.enable) {
             onClose();
@@ -137,10 +139,15 @@ function SelfInfo(props: SelfInfoProps) {
     }
 
     return (
-        <Dialog className={Style.selfInfo} visible={visible} title="个人信息设置" onClose={handleCloseDialog}>
+        <Dialog
+            className={Style.selfInfo}
+            visible={visible}
+            title="Personal information settings"
+            onClose={handleCloseDialog}
+        >
             <div className={Common.container}>
                 <div className={Common.block}>
-                    <p className={Common.title}>修改头像</p>
+                    <p className={Common.title}>Modify avatar</p>
                     <div className={Style.changeAvatar}>
                         {cropper.enable ? (
                             <div className={Style.cropper}>
@@ -152,7 +159,7 @@ function SelfInfo(props: SelfInfoProps) {
                                     aspectRatio={1}
                                 />
                                 <Button className={Style.button} onClick={handleChangeAvatar}>
-                                    修改头像
+                                    Modify avatar
                                 </Button>
                                 <ReactLoading
                                     className={`${Style.loading} ${loading ? 'show' : 'hide'}`}
@@ -166,7 +173,7 @@ function SelfInfo(props: SelfInfoProps) {
                             <div className={Style.preview}>
                                 <img
                                     className={loading ? 'blur' : ''}
-                                    alt="头像预览"
+                                    alt="Avatar Preview"
                                     src={avatar}
                                     onClick={selectAvatar}
                                 />
@@ -182,39 +189,39 @@ function SelfInfo(props: SelfInfoProps) {
                     </div>
                 </div>
                 <div className={Common.block}>
-                    <p className={Common.title}>修改密码</p>
+                    <p className={Common.title}>Change Password</p>
                     <div>
                         <Input
                             className={Style.input}
                             value={oldPassword}
                             onChange={setOldPassword}
                             type="password"
-                            placeholder="旧密码"
+                            placeholder="Old Password"
                         />
                         <Input
                             className={Style.input}
                             value={newPassword}
                             onChange={setNewPassword}
                             type="password"
-                            placeholder="新密码"
+                            placeholder="New Password"
                         />
                         <Button className={Style.button} onClick={handleChangePassword}>
-                            确认修改
+                            Confirm
                         </Button>
                     </div>
                 </div>
                 <div className={Common.block}>
-                    <p className={Common.title}>修改用户名</p>
+                    <p className={Common.title}>Modify username</p>
                     <div>
                         <Input
                             className={Style.input}
                             value={username}
                             onChange={setUsername}
                             type="text"
-                            placeholder="用户名"
+                            placeholder="Username"
                         />
                         <Button className={Style.button} onClick={handleChangeUsername}>
-                            确认修改
+                            Confirm
                         </Button>
                     </div>
                 </div>

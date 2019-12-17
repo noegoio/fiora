@@ -27,11 +27,11 @@ function UserInfo(props: UserInfoProps) {
     const action = useAction();
 
     const selfId = useSelector((state: State) => state.user && state.user._id) || '';
-    // 获取好友id
+    // Get friend id
     if (user && user._id.length === selfId.length) {
         user._id = getFriendId(selfId, user._id);
     }
-    /** 获取原始用户id */
+    /** Get original user id */
     const originUserId = user && user._id.replace(selfId, '');
 
     const linkman = useSelector((state: State) => state.linkmans[user && user._id]);
@@ -69,7 +69,7 @@ function UserInfo(props: UserInfoProps) {
                     type: 'friend',
                     createTime: Date.now(),
                 };
-                action.addLinkman(newLinkman as unknown as Linkman, true);
+                action.addLinkman((newLinkman as unknown) as Linkman, true);
             }
             const messages = await getLinkmanHistoryMessages(_id, existCount);
             if (messages) {
@@ -84,14 +84,14 @@ function UserInfo(props: UserInfoProps) {
         if (isSuccess) {
             onClose();
             action.removeLinkman(user._id);
-            Message.success('删除好友成功');
+            Message.success('Successful deletion of friends');
         }
     }
 
     async function handleSeal() {
         const isSuccess = await sealUser(user.username);
         if (isSuccess) {
-            Message.success('封禁用户成功');
+            Message.success('User banned successfully');
         }
     }
 
@@ -110,24 +110,24 @@ function UserInfo(props: UserInfoProps) {
                             <img
                                 className={`${Style.largeAvatar} ${largerAvatar ? 'show' : 'hide'}`}
                                 src={user.avatar}
-                                alt="用户头像"
+                                alt="Profile"
                             />
                             <p>{user.username}</p>
                         </div>
                         <div className={Style.info}>
                             {isFriend ? (
-                                <Button onClick={handleFocusUser}>发送消息</Button>
+                                <Button onClick={handleFocusUser}>Send a message</Button>
                             ) : null}
                             {isFriend ? (
                                 <Button type="danger" onClick={handleDeleteFriend}>
-                                    删除好友
+                                    Delete friend
                                 </Button>
                             ) : (
-                                <Button onClick={handleAddFriend}>加为好友</Button>
+                                <Button onClick={handleAddFriend}>Add to friends</Button>
                             )}
                             {isAdmin ? (
                                 <Button type="danger" onClick={handleSeal}>
-                                        封禁用户
+                                    Ban user
                                 </Button>
                             ) : null}
                         </div>

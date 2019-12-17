@@ -4,7 +4,7 @@ import { ActionTypes } from '../state/action';
 import convertMessage from '../../utils/convertMessage';
 
 /**
- * 获取 redux action
+ * Obtain redux action
  */
 export default function useAction() {
     const dispatch = useDispatch();
