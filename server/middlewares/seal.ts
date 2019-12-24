@@ -1,20 +1,20 @@
-import { existMemoryData, MemoryDataStorageKey } from '../memoryData';
-import { KoaContext } from '../../types/koa';
-import { SealText } from '../../utils/const';
+import { existMemoryData, MemoryDataStorageKey } from '../memoryData'
+import { KoaContext } from '../../types/koa'
+import { SealText } from '../../utils/const'
 
 /**
- * 拦截被封禁用户的请求
+ * Block requests from banned users
  */
 export default function seal() {
-    return async (ctx: KoaContext, next: Function) => {
-        if (
-            ctx.socket.user
-            && existMemoryData(MemoryDataStorageKey.SealList, ctx.socket.user.toString())
-        ) {
-            ctx.res = SealText;
-            return null;
-        }
+  return async (ctx: KoaContext, next: Function) => {
+    if (
+      ctx.socket.user &&
+      existMemoryData(MemoryDataStorageKey.SealList, ctx.socket.user.toString())
+    ) {
+      ctx.res = SealText
+      return null
+    }
 
-        return next();
-    };
+    return next()
+  }
 }
